@@ -1,3 +1,5 @@
+# Source: https://ernie55ernie.github.io/assets/blackjack.html
+
 from collections import defaultdict, namedtuple
 from pickle import FALSE
 
