@@ -1,6 +1,9 @@
+from collections import defaultdict
+from email.policy import default
 from math import floor
 
 import gym
+import numpy as np
 import pygame
 """
 Blackjack is a card game where the goal is to beat the dealer by obtaining cards
@@ -44,72 +47,94 @@ reward_dict = {'Losses': 0, 'Draws': 0, 'Wins': 0}
 action_dict = {0: 'stick', 1: 'hit'}
 
 
-def under_17_policy(observation):
+def under_17_policy(state):
     '''
     Hit until player sum is 17 or greater.
     This is the same policy that the dealer uses.
     '''
-    sum, dealer, usable_ace = observation
+    sum, dealer, usable_ace = state
     return int(sum < 17)
 
 
-def under_20_policy(observation):
+def under_20_policy(state):
     '''
     Hit until player sum is 20 or greater. Sticks only on 20 or 21
     '''
-    sum, dealer, usable_ace = observation
+    sum, dealer, usable_ace = state
     return int(sum < 20)
 
 
-def mc_es(policy, env, num_episodes):
+def mc_es(policy, env, num_episodes, gamma=1.0):
     '''
-    Uses monte carlo exploring starts algorithm (pg 99 in textbook).
+    Uses monte carlo exploring starts (ES) prediction (pg 99 in textbook)
 
     Args:
-        policy: A function that maps an observation to action probabilities.
+        policy: A function that maps an state to action probabilities.
         env: OpenAI gym environment.
         num_episodes: Nubmer of episodes to sample.
+        gamma: Gamma value in monte carlo algorithm.
 
     Returns:
-        state -> value mapping.
-        The state is a tuple (sum, dealer, usable_ace) and the value is a float.
+        value function V: mapping state to real numbers
     '''
+    pi = defaultdict(lambda: policy)
+    Q = defaultdict(lambda: np.zeros(env.action_space.n))
+    return_sum = defaultdict(lambda: np.zeros(env.action_space.n))
+    return_count = defaultdict(lambda: np.zeros(env.action_space.n))
 
-
-def play_blackjack(policy, env, num_episodes):
     for i_episode in range(num_episodes):
-        print()
-        print("Episode {}:".format(i_episode))
-        observation = env.reset()
+        # generate episode
+        episode = []
+        state = env.reset()
+        G = 0
 
         while True:
-            env.render()  # draw the game
-            pygame.event.pump()  # make game not crash on events
+            # get action based on pi (if exists) or given policy
+            action = policy(state)
+            next_state, reward, done, info = env.step(action)
+            episode.append((state, action, reward))
 
-            print(observation)
-
-            # get next action and observation from that action
-            action = policy(observation)
-            observation, reward, done, info = env.step(action)
-
-            # wait for user input before taking next action
-            input()
-
-            print(action_dict[action])
-
+            # next state
+            state = next_state
             if done: break
 
-        # final game observation and reward
-        print(observation)
-        print(reward)
-        print()
-        reward_dict[list(reward_dict)[floor(reward) + 1]] += 1
+        for s, a, r in episode:
+            # each step of episode is unique
+            G = gamma * G + r
+            return_sum[s][a] += G
+            return_count[s][a] += 1.0
+            Q[s][a] = return_sum[s][a] / return_count[s][a]
+            pi[s] = lambda state: np.argmax(Q[s][a])
 
-    print("Wins: {}, Losses: {}, Draws: {}".format(reward_dict['Wins'],
-                                                   reward_dict['Losses'],
-                                                   reward_dict['Draws']))
+    return Q
 
 
-play_blackjack(under_20_policy, env, 20)
+def play_episode(policy, env):
+    '''
+    Play an episode with a given policy in a given environment.
+    
+    Args:
+        policy: the policy to run
+        env: the enviorment to run an episode of
+
+    Returns:
+        the episode: (state, action, reward)
+    '''
+    episode = []
+    state = env.reset()
+    while True:
+        action = policy(state)
+        next_state, reward, done, info = env.step(action)
+        episode.append((state, action, reward))
+        state = next_state
+        if done: break
+    return episode
+
+
+Q = mc_es(under_17_policy, env, 30000)
+
+for s in Q:
+    print("{}: ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
+                                          action_dict[1], Q[s][1]))
 
 env.close()
