@@ -44,44 +44,72 @@ reward_dict = {'Losses': 0, 'Draws': 0, 'Wins': 0}
 action_dict = {0: 'stick', 1: 'hit'}
 
 
-def under_17_policy(current_sum):
+def under_17_policy(observation):
     '''
     Hit until player sum is 17 or greater.
     This is the same policy that the dealer uses.
     '''
-    return int(current_sum < 17)
+    sum, dealer, usable_ace = observation
+    return int(sum < 17)
 
 
-for i_episode in range(20):
-    print()
-    print("Episode {}:".format(i_episode))
-    observation = env.reset()
+def under_20_policy(observation):
+    '''
+    Hit until player sum is 20 or greater. Sticks only on 20 or 21
+    '''
+    sum, dealer, usable_ace = observation
+    return int(sum < 20)
 
-    while True:
-        env.render()  # draw the game
-        pygame.event.pump()  # make game not crash on events
 
+def mc_es(policy, env, num_episodes):
+    '''
+    Uses monte carlo exploring starts algorithm (pg 99 in textbook).
+
+    Args:
+        policy: A function that maps an observation to action probabilities.
+        env: OpenAI gym environment.
+        num_episodes: Nubmer of episodes to sample.
+
+    Returns:
+        state -> value mapping.
+        The state is a tuple (sum, dealer, usable_ace) and the value is a float.
+    '''
+
+
+def play_blackjack(policy, env, num_episodes):
+    for i_episode in range(num_episodes):
+        print()
+        print("Episode {}:".format(i_episode))
+        observation = env.reset()
+
+        while True:
+            env.render()  # draw the game
+            pygame.event.pump()  # make game not crash on events
+
+            print(observation)
+
+            # get next action and observation from that action
+            action = policy(observation)
+            observation, reward, done, info = env.step(action)
+
+            # wait for user input before taking next action
+            input()
+
+            print(action_dict[action])
+
+            if done: break
+
+        # final game observation and reward
         print(observation)
+        print(reward)
+        print()
+        reward_dict[list(reward_dict)[floor(reward) + 1]] += 1
 
-        # get next action and observation from that action
-        action = under_17_policy(observation[0])
-        observation, reward, done, info = env.step(action)
+    print("Wins: {}, Losses: {}, Draws: {}".format(reward_dict['Wins'],
+                                                   reward_dict['Losses'],
+                                                   reward_dict['Draws']))
 
-        # wait for user input before taking next action
-        input()
 
-        print(action_dict[action])
+play_blackjack(under_20_policy, env, 20)
 
-        if done:
-            break
-
-    # final game observation and reward
-    print(observation)
-    print(reward)
-    print()
-    reward_dict[list(reward_dict)[floor(reward) + 1]] += 1
-
-print("Wins: {}, Losses: {}, Draws: {}".format(reward_dict['Wins'],
-                                               reward_dict['Losses'],
-                                               reward_dict['Draws']))
 env.close()
