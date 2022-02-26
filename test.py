@@ -1,10 +1,7 @@
 from collections import defaultdict
-from email.policy import default
-from math import floor
 
 import gym
 import numpy as np
-import pygame
 """
 Blackjack is a card game where the goal is to beat the dealer by obtaining cards
     that sum to closer to 21 (without going over 21) than the dealers cards.
@@ -77,8 +74,7 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
     Returns:
         value function V: mapping state to real numbers
     '''
-    policies = defaultdict(lambda: policy)
-    pi = defaultdict(lambda: -1)
+    pi = defaultdict(lambda: None)
     Q = defaultdict(lambda: np.zeros(env.action_space.n))
     return_sum = defaultdict(lambda: np.zeros(env.action_space.n))
     return_count = defaultdict(lambda: np.zeros(env.action_space.n))
@@ -87,58 +83,40 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
         # generate episode
         episode = []
         state = env.reset()
-        G = 0
-
         while True:
             # get action based on pi (if exists) or given policy
-            action = policy(state)
+            action = pi[state] if pi[state] != None else policy(state)
             next_state, reward, done, info = env.step(action)
-            episode.append((state, action))
+            episode.append((state, action, reward))
 
             # next state
             state = next_state
             if done: break
 
-        for s, a in episode:
+        # calculations
+        G = 0
+        for s, a, r in episode:
             # each step of episode is unique
+            # use reward from the end of episode
             G = gamma * G + reward
             return_sum[s][a] += G
             return_count[s][a] += 1.0
             Q[s][a] = return_sum[s][a] / return_count[s][a]
-            policies[s] = lambda state: np.argmax(Q[s][a])
             pi[s] = np.argmax(Q[s])
 
     return Q, pi
 
 
-def play_episode(policy, env):
-    '''
-    Play an episode with a given policy in a given environment.
-    
-    Args:
-        policy: the policy to run
-        env: the enviorment to run an episode of
-
-    Returns:
-        the episode: (state, action, reward)
-    '''
-    episode = []
-    state = env.reset()
-    while True:
-        action = policy(state)
-        next_state, reward, done, info = env.step(action)
-        episode.append((state, action, reward))
-        state = next_state
-        if done: break
-    return episode
-
-
-Q, pi = mc_es(under_17_policy, env, 10000)
+Q, pi = mc_es(under_17_policy, env, 50000, 0.69)
 
 for s in Q:
-    print("Q({}, {}): {}".format(s, action_dict[0], Q[s][0]))
-    print("Q({}, {}): {}".format(s, action_dict[1], Q[s][1]))
+    print("Q({}) ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
+                                            action_dict[1], Q[s][1]))
+
+print()
+
 for s in pi:
-    print("pi({}): {}".format(s, action_dict[pi[s]] if pi[s] != -1 else pi[s]))
+    print("pi({}): {}".format(s,
+                              action_dict[pi[s]] if pi[s] != None else pi[s]))
 
 env.close()
