@@ -75,7 +75,7 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
         for s, a, r in episode:
             # each step of episode is unique
             # use reward from the end of episode
-            return_sum[s][a] += reward
+            return_sum[s][a] += r
             return_count[s][a] += 1.0
             Q[s][a] = return_sum[s][a] / return_count[s][a]
             pi[s] = np.argmax(Q[s])
@@ -83,10 +83,10 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
     return Q, pi
 
 
-Q17, pi17 = mc_es(under_17_policy, env, 10000)
-Q20, pi20 = mc_es(under_20_policy, env, 10000)
+Q17, pi17 = mc_es(under_17_policy, env, 1000000)
+# Q20, pi20 = mc_es(under_20_policy, env, 100000)
 
 plot_policy(pi17, "under_17_policy")
-plot_policy(pi20, "under_20_policy")
+# plot_policy(pi20, "under_20_policy")
 
 env.close()
