@@ -3,9 +3,22 @@ from collections import defaultdict
 import gym
 import numpy as np
 
+from plot_utils import *
+
 env = gym.make('Blackjack-v1')
 reward_dict = {'Losses': 0, 'Draws': 0, 'Wins': 0}
 action_dict = {0: 'stick', 1: 'hit'}
+
+
+def print_policy(policy):
+    for s in policy:
+        print("policy({}): {}".format(s, action_dict[policy[s]]))
+
+
+def print_value(Q):
+    for s in Q:
+        print("Q({}) ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
+                                                action_dict[1], Q[s][1]))
 
 
 def under_17_policy(state):
@@ -70,16 +83,10 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
     return Q, pi
 
 
-Q, pi = mc_es(under_17_policy, env, 50000, 0.69)
+Q17, pi17 = mc_es(under_17_policy, env, 10000)
+Q20, pi20 = mc_es(under_20_policy, env, 10000)
 
-for s in Q:
-    print("Q({}) ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
-                                            action_dict[1], Q[s][1]))
-
-print()
-
-for s in pi:
-    print("pi({}): {}".format(s,
-                              action_dict[pi[s]] if pi[s] != None else pi[s]))
+plot_policy(pi17, "under_17_policy")
+plot_policy(pi20, "under_20_policy")
 
 env.close()
