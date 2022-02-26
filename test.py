@@ -77,7 +77,8 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
     Returns:
         value function V: mapping state to real numbers
     '''
-    pi = defaultdict(lambda: policy)
+    policies = defaultdict(lambda: policy)
+    pi = defaultdict(lambda: -1)
     Q = defaultdict(lambda: np.zeros(env.action_space.n))
     return_sum = defaultdict(lambda: np.zeros(env.action_space.n))
     return_count = defaultdict(lambda: np.zeros(env.action_space.n))
@@ -92,21 +93,22 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
             # get action based on pi (if exists) or given policy
             action = policy(state)
             next_state, reward, done, info = env.step(action)
-            episode.append((state, action, reward))
+            episode.append((state, action))
 
             # next state
             state = next_state
             if done: break
 
-        for s, a, r in episode:
+        for s, a in episode:
             # each step of episode is unique
-            G = gamma * G + r
+            G = gamma * G + reward
             return_sum[s][a] += G
             return_count[s][a] += 1.0
             Q[s][a] = return_sum[s][a] / return_count[s][a]
-            pi[s] = lambda state: np.argmax(Q[s][a])
+            policies[s] = lambda state: np.argmax(Q[s][a])
+            pi[s] = np.argmax(Q[s])
 
-    return Q
+    return Q, pi
 
 
 def play_episode(policy, env):
@@ -131,10 +133,12 @@ def play_episode(policy, env):
     return episode
 
 
-Q = mc_es(under_17_policy, env, 30000)
+Q, pi = mc_es(under_17_policy, env, 10000)
 
 for s in Q:
-    print("{}: ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
-                                          action_dict[1], Q[s][1]))
+    print("Q({}, {}): {}".format(s, action_dict[0], Q[s][0]))
+    print("Q({}, {}): {}".format(s, action_dict[1], Q[s][1]))
+for s in pi:
+    print("pi({}): {}".format(s, action_dict[pi[s]] if pi[s] != -1 else pi[s]))
 
 env.close()
