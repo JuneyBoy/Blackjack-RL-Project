@@ -94,12 +94,10 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
             if done: break
 
         # calculations
-        G = 0
         for s, a, r in episode:
             # each step of episode is unique
             # use reward from the end of episode
-            G = gamma * G + reward
-            return_sum[s][a] += G
+            return_sum[s][a] += reward
             return_count[s][a] += 1.0
             Q[s][a] = return_sum[s][a] / return_count[s][a]
             pi[s] = np.argmax(Q[s])
