@@ -61,7 +61,7 @@ def q_learning( env, num_episodes, alpha=0.1, gamma=1):
         for i_step in range(100):
             if np.argmax(Q[state]) != None:
                 # if the state has been visited, then take the greedy action most of the time but take random action alpha % of the time
-                action = np.random.choice([np.argmax(Q[state]),0,1], [1-alpha, 0.5*alpha, 0.5*alpha])
+                action = np.random.choice([np.argmax(Q[state]),0,1], p=[1-alpha, 0.5*alpha, 0.5*alpha])
             else:
                 # if the state has not been visited, then take random action
                 action = np.random.uniform([0,1])
@@ -77,6 +77,11 @@ def q_learning( env, num_episodes, alpha=0.1, gamma=1):
     return Q
 
 
-Q_Optimal = q_learning(env, 1000000)
+Q_Optimal = q_learning(env, 100000)
+
+pi = defaultdict(lambda: None)
+
+for s in Q_Optimal:
+    pi[s] = np.argmax(Q_Optimal[s])
 
 env.close()
