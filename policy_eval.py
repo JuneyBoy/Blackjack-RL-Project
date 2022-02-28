@@ -34,12 +34,15 @@ def play_blackjack(env, num_episodes, policy=None):
     return reward_dict
 
 
-under_17_results = play_blackjack(env, 100000)
-mces_results = play_blackjack(env, 100000, mces.pi)
-ql_results = play_blackjack(env, 100000, ql.pi)
+# under_17_results = play_blackjack(env, 100000)
+# mces_results = play_blackjack(env, 100000, mces.pi)
+# ql_results = play_blackjack(env, 100000, ql.pi)
 
-print("Under 17 Results: {} Losses      {} Draws        {} Wins".format(under_17_results[-1], under_17_results[0], under_17_results[1]))
-print("Monte Carlo ES Rsults: {} Losses      {} Draws        {} Wins".format(mces_results[-1], mces_results[0], mces_results[1]))
-print("Q Learning Results: {} Losses      {} Draws        {} Wins".format(ql_results[-1], ql_results[0], ql_results[1]))
+# print("Under 17 Results: {} Losses      {} Draws        {} Wins".format(under_17_results[-1], under_17_results[0], under_17_results[1]))
+# print("Monte Carlo ES Rsults: {} Losses      {} Draws        {} Wins".format(mces_results[-1], mces_results[0], mces_results[1]))
+# print("Q Learning Results: {} Losses      {} Draws        {} Wins".format(ql_results[-1], ql_results[0], ql_results[1]))
+
+plot_policy(mces.pi, r'Monte Carlo ES - $\pi_*$')
+plot_policy(ql.pi, r'Q Learning - $\pi_*$')
 
 env.close()

@@ -87,4 +87,5 @@ def plot_policy(policy, title="Policy"):
     ax = fig.add_subplot(122)
     ax.set_title('No Usable Ace')
     get_figure(False, ax)
+    plt.tight_layout()
     plt.show()
