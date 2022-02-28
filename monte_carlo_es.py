@@ -52,8 +52,13 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
         value function Q: mapping (state, action) -> value
         optimized policy pi: mapping state -> action
     '''
+    # map: state -> action
     pi = defaultdict(lambda: None)
+
+    # map: state -> array of values (index: 0 -> value for stick, a=1 -> value for hit)
     Q = defaultdict(lambda: np.zeros(env.action_space.n))
+
+    # for each state-action pair: track return value sum, and number of times it occurs
     return_sum = defaultdict(lambda: np.zeros(env.action_space.n))
     return_count = defaultdict(lambda: np.zeros(env.action_space.n))
 
@@ -74,7 +79,6 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
         # calculations
         for s, a, r in episode:
             # each step of episode is unique
-            # use reward from the end of episode
             return_sum[s][a] += r
             return_count[s][a] += 1.0
             Q[s][a] = return_sum[s][a] / return_count[s][a]
@@ -86,7 +90,7 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
 Q17, pi17 = mc_es(under_17_policy, env, 100000)
 # Q20, pi20 = mc_es(under_20_policy, env, 100000)
 
-# plot_policy(pi17, "under_17_policy")
-# plot_policy(pi20, "under_20_policy")
+# plot_policy(pi17, "Monte Carlo ES - $\pi^{\star}$")
+# plot_policy(pi20, "Monte Carlo ES - $\pi^{\star}$")
 
 env.close()
