@@ -3,10 +3,9 @@ from collections import defaultdict
 import gym
 import numpy as np
 
-from plot_utils import *
-
 import monte_carlo_es as mces
 import q_learning as ql
+from plot_utils import *
 
 env = gym.make('Blackjack-v1')
 
@@ -39,7 +38,10 @@ mces_results = play_blackjack(env, 100000, mces.pi)
 ql_results = play_blackjack(env, 100000, ql.pi)
 
 print("Under 17 Results: {} Losses      {} Draws        {} Wins".format(under_17_results[-1], under_17_results[0], under_17_results[1]))
-print("Monte Carlo ES Rsults: {} Losses      {} Draws        {} Wins".format(mces_results[-1], mces_results[0], mces_results[1]))
+print("Monte Carlo ES Results: {} Losses      {} Draws        {} Wins".format(mces_results[-1], mces_results[0], mces_results[1]))
 print("Q Learning Results: {} Losses      {} Draws        {} Wins".format(ql_results[-1], ql_results[0], ql_results[1]))
+
+plot_policy(mces.pi, "Monte Carlo ES - $\pi_{\star}$")
+plot_policy(ql.pi, "Q-Learning - $\pi_{\star}$")
 
 env.close()
