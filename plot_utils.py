@@ -1,6 +1,6 @@
 """
 FOR PLOTTING BLACKJACK VALUE FUNCTIONS AND POLICIES
-SOURCE: https://github.com/udacity/deep-reinforcement-learning/blob/master/monte-carlo/plot_utils.py
+inspiration: https://github.com/udacity/deep-reinforcement-learning/blob/master/monte-carlo/plot_utils.py
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -49,19 +49,18 @@ def plot_blackjack_values(V):
     plt.show()
 
 
-def plot_policy(policy, title="policy"):
+def plot_policy(policy, title="Policy"):
 
-    def get_Z(x, y, usable_ace):
-        if (x, y, usable_ace) in policy:
-            return policy[x, y, usable_ace]
+    def get_Z(player_sum, dealer_show, usable_ace):
+        if (player_sum, dealer_show, usable_ace) in policy:
+            return policy[player_sum, dealer_show, usable_ace]
         else:
             return -1
 
     def get_figure(usable_ace, ax):
-        x_range = np.arange(2, 22)
-        y_range = np.arange(10, 0, -1)
-        X, Y = np.meshgrid(x_range, y_range)
-        Z = np.array([[get_Z(x, y, usable_ace) for x in x_range]
+        x_range = np.arange(1, 11)
+        y_range = np.arange(21, 10, -1)
+        Z = np.array([[get_Z(y, x, usable_ace) for x in x_range]
                       for y in y_range])
         surf = ax.imshow(Z,
                          cmap=plt.get_cmap(
@@ -69,23 +68,23 @@ def plot_policy(policy, title="policy"):
                              3),
                          vmin=-1,
                          vmax=1,
-                         extent=[1.5, 21.5, 0.5, 10.5])
+                         extent=[0.5, 10.5, 10.5, 21.5])
         plt.xticks(x_range)
         plt.yticks(y_range)
-        plt.gca().invert_yaxis()
-        ax.set_xlabel('Player\'s Current Sum')
-        ax.set_ylabel('Dealer\'s Showing Card')
-        ax.grid(color='w', linestyle='-', linewidth=1)
+        ax.set_xlabel('Dealer\'s Showing Card')
+        ax.set_ylabel('Player\'s Current Sum')
+        ax.grid(color='w', linestyle='-', linewidth=0.169)
         divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.1)
+        cax = divider.append_axes("right", size="10%", pad=0.1)
         cbar = plt.colorbar(surf, ticks=[-1, 0, 1], cax=cax)
         cbar.ax.set_yticklabels(['-1 (DNE)', '0 (STICK)', '1 (HIT)'])
 
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure()
+    plt.suptitle(title, fontsize=20)
     ax = fig.add_subplot(121)
-    ax.set_title('{}: Usable Ace'.format(title))
+    ax.set_title('Usable Ace')
     get_figure(True, ax)
     ax = fig.add_subplot(122)
-    ax.set_title('{}: No Usable Ace'.format(title))
+    ax.set_title('No Usable Ace')
     get_figure(False, ax)
     plt.show()
