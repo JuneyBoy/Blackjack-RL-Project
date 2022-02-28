@@ -8,6 +8,19 @@ from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.mplot3d import Axes3D
 
+action_dict = {0: 'stick', 1: 'hit'}
+
+
+def print_policy(policy):
+    for s in policy:
+        print("policy({}): {}".format(s, action_dict[policy[s]]))
+
+
+def print_Q(Q):
+    for s in Q:
+        print("Q({}) ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
+                                                action_dict[1], Q[s][1]))
+
 
 def plot_blackjack_values(V):
 
@@ -81,10 +94,10 @@ def plot_policy(policy, title="Policy"):
 
     fig = plt.figure()
     plt.suptitle(title, fontsize=20)
-    ax = fig.add_subplot(121)
+    ax = fig.add_subplot(211)
     ax.set_title('Usable Ace')
     get_figure(True, ax)
-    ax = fig.add_subplot(122)
+    ax = fig.add_subplot(212)
     ax.set_title('No Usable Ace')
     get_figure(False, ax)
     plt.tight_layout()

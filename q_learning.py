@@ -10,17 +10,6 @@ reward_dict = {'Losses': 0, 'Draws': 0, 'Wins': 0}
 action_dict = {0: 'stick', 1: 'hit'}
 
 
-def print_policy(policy):
-    for s in policy:
-        print("policy({}): {}".format(s, action_dict[policy[s]]))
-
-
-def print_value(Q):
-    for s in Q:
-        print("Q({}) ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
-                                                action_dict[1], Q[s][1]))
-
-
 def under_17_policy(state):
     '''
     Hit until player sum is 17 or greater.
