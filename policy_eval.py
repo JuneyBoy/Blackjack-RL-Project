@@ -35,7 +35,7 @@ def play_blackjack(env, num_episodes, policy=None):
 
 
 under_17_results = play_blackjack(env, 100000)
-mces_results = play_blackjack(env, 100000, mces.pi17)
+mces_results = play_blackjack(env, 100000, mces.pi)
 ql_results = play_blackjack(env, 100000, ql.pi)
 
 print("Under 17 Results: {} Losses      {} Draws        {} Wins".format(under_17_results[-1], under_17_results[0], under_17_results[1]))

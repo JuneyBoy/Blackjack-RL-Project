@@ -87,10 +87,6 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
     return Q, pi
 
 
-Q17, pi17 = mc_es(under_17_policy, env, 100000)
-# Q20, pi20 = mc_es(under_20_policy, env, 100000)
-
-# plot_policy(pi17, "Monte Carlo ES - $\pi^{\star}$")
-# plot_policy(pi20, "Monte Carlo ES - $\pi^{\star}$")
+Q, pi = mc_es(under_17_policy, env, 100000)
 
 env.close()
