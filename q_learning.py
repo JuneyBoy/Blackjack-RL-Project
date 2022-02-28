@@ -38,7 +38,7 @@ def under_20_policy(state):
     return int(sum < 20)
 
 
-def q_learning( env, num_episodes, alpha=0.1, gamma=1):
+def q_learning( env, num_episodes, alpha=0.05, gamma=0.5):
     '''
     Uses Q-Learning (pg 153 in textbook)
 
