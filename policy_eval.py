@@ -44,7 +44,4 @@ def play_blackjack(env, num_episodes, policy=None):
 plot_policy(mces.pi, r'Monte Carlo ES - $\pi_*$')
 plot_policy(ql.pi, r'Q Learning - $\pi_*$')
 
-plot_policy(mces.pi, "Monte Carlo ES - $\pi_{\star}$")
-plot_policy(ql.pi, "Q-Learning - $\pi_{\star}$")
-
 env.close()
