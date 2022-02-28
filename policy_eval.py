@@ -22,7 +22,7 @@ def play_blackjack(env, num_episodes, policy=None):
             if policy != None:
                 action = policy[state]
             else:
-                action = state[0] <= 17
+                action = state[0] < 17
 
             state, reward, done, info = env.step(action)
 
