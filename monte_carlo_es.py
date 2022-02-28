@@ -10,17 +10,6 @@ reward_dict = {'Losses': 0, 'Draws': 0, 'Wins': 0}
 action_dict = {0: 'stick', 1: 'hit'}
 
 
-def print_policy(policy):
-    for s in policy:
-        print("policy({}): {}".format(s, action_dict[policy[s]]))
-
-
-def print_value(Q):
-    for s in Q:
-        print("Q({}) ... {}: {}, {}: {}".format(s, action_dict[0], Q[s][0],
-                                                action_dict[1], Q[s][1]))
-
-
 def under_17_policy(state):
     '''
     Hit until player sum is 17 or greater.
@@ -38,7 +27,7 @@ def under_20_policy(state):
     return int(sum < 20)
 
 
-def mc_es(policy, env, num_episodes, gamma=1.0):
+def mc_es(policy, env, num_episodes, gamma=0.5):
     '''
     Uses monte carlo exploring starts (ES) prediction (pg 99 in textbook)
 
@@ -77,9 +66,11 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
             if done: break
 
         # calculations
-        for s, a, r in episode:
+        G = 0
+        for (s, a, r) in episode:
+            G = gamma * G + r
             # each step of episode is unique
-            return_sum[s][a] += r
+            return_sum[s][a] += G
             return_count[s][a] += 1.0
             Q[s][a] = return_sum[s][a] / return_count[s][a]
             pi[s] = np.argmax(Q[s])
@@ -87,6 +78,6 @@ def mc_es(policy, env, num_episodes, gamma=1.0):
     return Q, pi
 
 
-Q, pi = mc_es(under_17_policy, env, 100000)
+Q, pi = mc_es(under_17_policy, env, 100000, 0.0)
 
 env.close()
