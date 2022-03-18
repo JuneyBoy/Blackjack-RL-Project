@@ -18,16 +18,7 @@ def under_17_policy(state):
     sum, dealer, usable_ace = state
     return int(sum < 17)
 
-
-def under_20_policy(state):
-    '''
-    Hit until player sum is 20 or greater. Sticks only on 20 or 21
-    '''
-    sum, dealer, usable_ace = state
-    return int(sum < 20)
-
-
-def mc_es(policy, env, num_episodes, gamma=0.5):
+def mc_es(policy, env, num_episodes, gamma=1):
     '''
     Uses monte carlo exploring starts (ES) prediction (pg 99 in textbook)
 
@@ -78,6 +69,6 @@ def mc_es(policy, env, num_episodes, gamma=0.5):
     return Q, pi
 
 
-Q, pi = mc_es(under_17_policy, env, 100000, 0.0)
+Q, pi = mc_es(under_17_policy, env, 100000)
 
 env.close()
