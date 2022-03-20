@@ -5,21 +5,21 @@ import numpy as np
 
 from plot_utils import *
 
-env = gym.make('Blackjack-v1')
-reward_dict = {'Losses': 0, 'Draws': 0, 'Wins': 0}
-action_dict = {0: 'stick', 1: 'hit'}
+env = gym.make("Blackjack-v1")
+ACTION_LIST = list(range(env.action_space.n))
 
 
 def under_17_policy(state):
-    '''
+    """
     Hit until player sum is 17 or greater.
     This is the same policy that the dealer uses.
-    '''
+    """
     sum, dealer, usable_ace = state
     return int(sum < 17)
 
+
 def mc_es(policy, env, num_episodes, gamma=1):
-    '''
+    """
     Uses monte carlo exploring starts (ES) prediction (pg 99 in textbook)
 
     Args:
@@ -31,7 +31,7 @@ def mc_es(policy, env, num_episodes, gamma=1):
     Returns:
         value function Q: mapping (state, action) -> value
         optimized policy pi: mapping state -> action
-    '''
+    """
     # map: state -> action
     pi = defaultdict(lambda: None)
 
@@ -46,15 +46,17 @@ def mc_es(policy, env, num_episodes, gamma=1):
         # generate episode
         episode = []
         state = env.reset()
+        action = np.random.choice(ACTION_LIST)
+
         while True:
-            # get action based on pi (if exists) or given policy
-            action = pi[state] if pi[state] != None else policy(state)
             next_state, reward, done, info = env.step(action)
             episode.append((state, action, reward))
 
-            # next state
+            # get next action based on pi (if exists) or given policy
             state = next_state
-            if done: break
+            action = pi[state] if pi[state] != None else policy(state)
+            if done:
+                break
 
         # calculations
         G = 0
@@ -69,6 +71,5 @@ def mc_es(policy, env, num_episodes, gamma=1):
     return Q, pi
 
 
-Q, pi = mc_es(under_17_policy, env, 100000)
-
+Q, pi = mc_es(under_17_policy, env, 1000000)
 env.close()
